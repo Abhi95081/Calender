@@ -61,63 +61,56 @@ fun CalendarScreen() {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(30.dp)
+            .padding(16.dp)
+            .background(
+                Brush.verticalGradient(
+                    listOf(Color(0xFFF5F7FA), Color(0xFFE4EBF5))
+                )
+            )
     ) {
+        // HEADER with gradient glass look
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(
-                    brush = Brush.horizontalGradient(
-                        listOf(
-                            MaterialTheme.colorScheme.primary,
-                            MaterialTheme.colorScheme.tertiary
-                        )
+                    brush = Brush.linearGradient(
+                        colors = listOf(Color(0xFF6A11CB), Color(0xFF2575FC))
                     ),
-                    shape = MaterialTheme.shapes.medium
+                    shape = MaterialTheme.shapes.large
                 )
-                .padding(horizontal = 16.dp, vertical = 12.dp),
+                .padding(horizontal = 16.dp, vertical = 14.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Spacer(Modifier.height(20.dp))
             IconButton(onClick = { currentMonth = currentMonth.minusMonths(1) }) {
-                Icon(Icons.Default.ArrowBack, contentDescription = "Previous Month")
+                Icon(Icons.Default.ArrowBack, contentDescription = null, tint = Color.White)
             }
 
             Text(
                 text = "${currentMonth.month.getDisplayName(TextStyle.FULL, Locale.ENGLISH)} ${currentMonth.year}",
                 fontWeight = FontWeight.Bold,
-                fontSize = 20.sp,
+                fontSize = 22.sp,
                 color = Color.White
             )
 
             IconButton(onClick = { currentMonth = currentMonth.plusMonths(1) }) {
-                Icon(Icons.Default.ArrowForward, contentDescription = "Next Month")
+                Icon(Icons.Default.ArrowForward, contentDescription = null, tint = Color.White)
             }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        val weekdayColors = listOf(
-            Color.Red,
-            Color.Gray,
-            Color.Gray,
-            Color.Gray,
-            Color.Gray,
-            Color.Blue,
-            Color.Magenta
-        )
-
+        // Weekday headers
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            DayOfWeek.values().forEachIndexed { index, day ->
+            DayOfWeek.values().forEach { day ->
                 Text(
                     text = day.getDisplayName(TextStyle.SHORT, Locale.ENGLISH),
                     fontWeight = FontWeight.Bold,
                     fontSize = 14.sp,
-                    color = weekdayColors[index],
+                    color = Color(0xFF6A11CB),
                     modifier = Modifier.weight(1f),
                     textAlign = TextAlign.Center
                 )
@@ -126,60 +119,74 @@ fun CalendarScreen() {
 
         Spacer(modifier = Modifier.height(8.dp))
 
+        // Days Grid
         LazyVerticalGrid(
             columns = GridCells.Fixed(7),
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f),
-            verticalArrangement = Arrangement.spacedBy(4.dp),
-            horizontalArrangement = Arrangement.spacedBy(4.dp)
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             itemsIndexed(dates) { _, date ->
-                DayCell(
+                DayCellPremium(
                     date = date,
                     isToday = date == today,
+                    hasEvent = eventsThisMonth.any { it.first == date },
                     onClick = { if (date != null) selectedDate = date }
                 )
             }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
-        Divider()
+        Divider(thickness = 1.dp, color = Color(0xFFCCCCCC))
         Spacer(modifier = Modifier.height(8.dp))
 
+        // Events List
         Text(
-            text = "🌟 Events in ${currentMonth.month.getDisplayName(TextStyle.FULL, Locale.ENGLISH)}",
-            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
-            color = MaterialTheme.colorScheme.primary
+            text = "🌟 Festivals & Events",
+            style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.ExtraBold),
+            color = Color(0xFF6A11CB)
         )
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        Column(modifier = Modifier.weight(1f,
-            false)
-            .verticalScroll(rememberScrollState())
+        Column(
+            modifier = Modifier
+                .weight(1f, false)
+                .verticalScroll(rememberScrollState())
         ) {
             if (eventsThisMonth.isEmpty()) {
                 Text(
                     text = "No events this month.",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = Color.Gray
                 )
             } else {
                 eventsThisMonth.forEach { (date, panchang) ->
                     if (panchang.festivals.isNotEmpty()) {
-                        Text(
-                            text = buildAnnotatedString {
-                                append("• ${date.dayOfMonth} ${date.month.getDisplayName(TextStyle.SHORT, Locale.ENGLISH)} — ${panchang.tithi}")
-                                append(" | ")
-                                withStyle(SpanStyle(color = Color(0xFFD32F2F), fontWeight = FontWeight.Bold)) {
-                                    append(panchang.festivals.joinToString("\n"))
-                                }
-                            },
-                            fontSize = 14.sp,
-                            color = MaterialTheme.colorScheme.onSurface,
-                            modifier = Modifier.padding(vertical = 4.dp)
-                        )
+                        Card(
+                            shape = MaterialTheme.shapes.medium,
+                            colors = CardDefaults.cardColors(containerColor = Color.White),
+                            elevation = CardDefaults.cardElevation(4.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 4.dp)
+                        ) {
+                            Column(modifier = Modifier.padding(12.dp)) {
+                                Text(
+                                    text = "${date.dayOfMonth} ${date.month.getDisplayName(TextStyle.SHORT, Locale.ENGLISH)} — ${panchang.tithi}",
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color(0xFF2575FC)
+                                )
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text(
+                                    text = panchang.festivals.joinToString(", "),
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = Color(0xFFD32F2F)
+                                )
+                            }
+                        }
                     }
                 }
             }
@@ -188,9 +195,7 @@ fun CalendarScreen() {
         selectedDate?.let { date ->
             val panchang = PanchangProvider.getPanchang(date)
             if (panchang != null) {
-                PanchangDialog(date, panchang) {
-                    selectedDate = null
-                }
+                PanchangDialog(date, panchang) { selectedDate = null }
             }
         }
     }
@@ -198,38 +203,42 @@ fun CalendarScreen() {
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun DayCell(date: LocalDate?, isToday: Boolean, onClick: () -> Unit) {
+fun DayCellPremium(date: LocalDate?, isToday: Boolean, hasEvent: Boolean, onClick: () -> Unit) {
     if (date == null) {
         Box(modifier = Modifier.size(48.dp))
     } else {
         val bgColor = when {
-            isToday -> MaterialTheme.colorScheme.primaryContainer
-            date.dayOfWeek == DayOfWeek.SUNDAY -> Color(0xFFFFCDD2)
-            date.dayOfWeek == DayOfWeek.SATURDAY -> Color(0xFFBBDEFB)
-            else -> MaterialTheme.colorScheme.surfaceVariant
-        }
-
-        val textColor = when {
-            isToday -> MaterialTheme.colorScheme.onPrimaryContainer
-            date.dayOfWeek == DayOfWeek.SUNDAY -> Color(0xFFD32F2F)
-            date.dayOfWeek == DayOfWeek.SATURDAY -> Color(0xFF1976D2)
-            else -> MaterialTheme.colorScheme.onSurface
+            isToday -> Brush.linearGradient(listOf(Color(0xFF6A11CB), Color(0xFF2575FC)))
+            else -> Brush.verticalGradient(listOf(Color.White, Color(0xFFE3E6F0)))
         }
 
         Card(
             modifier = Modifier
                 .size(48.dp)
                 .clickable { onClick() },
-            shape = MaterialTheme.shapes.small,
-            colors = CardDefaults.cardColors(containerColor = bgColor),
-            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            shape = MaterialTheme.shapes.medium,
+            elevation = CardDefaults.cardElevation(4.dp)
         ) {
-            Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
-                Text(
-                    text = date.dayOfMonth.toString(),
-                    color = textColor,
-                    fontWeight = if (isToday) FontWeight.Bold else FontWeight.Normal
-                )
+            Box(
+                modifier = Modifier
+                    .background(bgColor)
+                    .fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(
+                        text = date.dayOfMonth.toString(),
+                        color = if (isToday) Color.White else Color.Black,
+                        fontWeight = if (isToday) FontWeight.Bold else FontWeight.Normal
+                    )
+                    if (hasEvent) {
+                        Box(
+                            modifier = Modifier
+                                .size(5.dp)
+                                .background(Color(0xFFD32F2F), shape = MaterialTheme.shapes.small)
+                        )
+                    }
+                }
             }
         }
     }
