@@ -68,7 +68,7 @@ fun CalendarScreen() {
                 )
             )
     ) {
-        // HEADER with gradient glass look
+
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -100,7 +100,7 @@ fun CalendarScreen() {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Weekday headers
+
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly
@@ -119,7 +119,6 @@ fun CalendarScreen() {
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Days Grid
         LazyVerticalGrid(
             columns = GridCells.Fixed(7),
             modifier = Modifier
@@ -142,7 +141,6 @@ fun CalendarScreen() {
         Divider(thickness = 1.dp, color = Color(0xFFCCCCCC))
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Events List
         Text(
             text = "🌟 Festivals & Events",
             style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.ExtraBold),
