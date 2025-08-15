@@ -69,7 +69,6 @@ fun CalendarScreen() {
             .padding(16.dp)
     ) {
 
-        // Header with gradient background
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -101,7 +100,7 @@ fun CalendarScreen() {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Weekday names
+
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly
@@ -120,7 +119,7 @@ fun CalendarScreen() {
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Calendar grid
+
         LazyVerticalGrid(
             columns = GridCells.Fixed(7),
             modifier = Modifier
@@ -143,7 +142,7 @@ fun CalendarScreen() {
         Divider(thickness = 1.dp, color = Color(0xFFff6a00))
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Events List
+
         Text(
             text = "🎉 Festivals & Events",
             style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.ExtraBold),
@@ -193,7 +192,7 @@ fun CalendarScreen() {
             }
         }
 
-        // Panchang dialog
+
         selectedDate?.let { date ->
             val panchang = PanchangProvider.getPanchang(date)
             if (panchang != null) {
