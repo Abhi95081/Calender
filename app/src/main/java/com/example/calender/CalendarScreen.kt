@@ -61,22 +61,23 @@ fun CalendarScreen() {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
             .background(
                 Brush.verticalGradient(
-                    listOf(Color(0xFFF5F7FA), Color(0xFFE4EBF5))
+                    listOf(Color(0xFFFFF3E0), Color(0xFFFFE0B2), Color(0xFFFFCC80))
                 )
             )
+            .padding(16.dp)
     ) {
 
+        // Header with gradient background
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(
-                    brush = Brush.linearGradient(
-                        colors = listOf(Color(0xFF6A11CB), Color(0xFF2575FC))
+                    brush = Brush.horizontalGradient(
+                        colors = listOf(Color(0xFFff6a00), Color(0xFFee0979))
                     ),
-                    shape = MaterialTheme.shapes.large
+                    shape = MaterialTheme.shapes.extraLarge
                 )
                 .padding(horizontal = 16.dp, vertical = 14.dp),
             verticalAlignment = Alignment.CenterVertically,
@@ -100,7 +101,7 @@ fun CalendarScreen() {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-
+        // Weekday names
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly
@@ -110,7 +111,7 @@ fun CalendarScreen() {
                     text = day.getDisplayName(TextStyle.SHORT, Locale.ENGLISH),
                     fontWeight = FontWeight.Bold,
                     fontSize = 14.sp,
-                    color = Color(0xFF6A11CB),
+                    color = if (day == DayOfWeek.SUNDAY) Color(0xFFD32F2F) else Color(0xFFff6a00),
                     modifier = Modifier.weight(1f),
                     textAlign = TextAlign.Center
                 )
@@ -119,6 +120,7 @@ fun CalendarScreen() {
 
         Spacer(modifier = Modifier.height(8.dp))
 
+        // Calendar grid
         LazyVerticalGrid(
             columns = GridCells.Fixed(7),
             modifier = Modifier
@@ -128,7 +130,7 @@ fun CalendarScreen() {
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             itemsIndexed(dates) { _, date ->
-                DayCellPremium(
+                DayCellColorful(
                     date = date,
                     isToday = date == today,
                     hasEvent = eventsThisMonth.any { it.first == date },
@@ -138,13 +140,14 @@ fun CalendarScreen() {
         }
 
         Spacer(modifier = Modifier.height(16.dp))
-        Divider(thickness = 1.dp, color = Color(0xFFCCCCCC))
+        Divider(thickness = 1.dp, color = Color(0xFFff6a00))
         Spacer(modifier = Modifier.height(8.dp))
 
+        // Events List
         Text(
-            text = "🌟 Festivals & Events",
+            text = "🎉 Festivals & Events",
             style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.ExtraBold),
-            color = Color(0xFF6A11CB)
+            color = Color(0xFFee0979)
         )
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -165,8 +168,8 @@ fun CalendarScreen() {
                     if (panchang.festivals.isNotEmpty()) {
                         Card(
                             shape = MaterialTheme.shapes.medium,
-                            colors = CardDefaults.cardColors(containerColor = Color.White),
-                            elevation = CardDefaults.cardElevation(4.dp),
+                            colors = CardDefaults.cardColors(containerColor = Color(0xFFFFFDE7)),
+                            elevation = CardDefaults.cardElevation(6.dp),
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(vertical = 4.dp)
@@ -175,7 +178,7 @@ fun CalendarScreen() {
                                 Text(
                                     text = "${date.dayOfMonth} ${date.month.getDisplayName(TextStyle.SHORT, Locale.ENGLISH)} — ${panchang.tithi}",
                                     fontWeight = FontWeight.Bold,
-                                    color = Color(0xFF2575FC)
+                                    color = Color(0xFFff6a00)
                                 )
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Text(
@@ -190,6 +193,7 @@ fun CalendarScreen() {
             }
         }
 
+        // Panchang dialog
         selectedDate?.let { date ->
             val panchang = PanchangProvider.getPanchang(date)
             if (panchang != null) {
@@ -201,13 +205,15 @@ fun CalendarScreen() {
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun DayCellPremium(date: LocalDate?, isToday: Boolean, hasEvent: Boolean, onClick: () -> Unit) {
+fun DayCellColorful(date: LocalDate?, isToday: Boolean, hasEvent: Boolean, onClick: () -> Unit) {
     if (date == null) {
         Box(modifier = Modifier.size(48.dp))
     } else {
-        val bgColor = when {
-            isToday -> Brush.linearGradient(listOf(Color(0xFF6A11CB), Color(0xFF2575FC)))
-            else -> Brush.verticalGradient(listOf(Color.White, Color(0xFFE3E6F0)))
+        val bgBrush = when {
+            isToday -> Brush.linearGradient(listOf(Color(0xFFee0979), Color(0xFFff6a00)))
+            date.dayOfWeek == DayOfWeek.SUNDAY -> Brush.linearGradient(listOf(Color(0xFFFFCDD2), Color(0xFFE57373)))
+            hasEvent -> Brush.linearGradient(listOf(Color(0xFFFFF176), Color(0xFFFFD54F)))
+            else -> Brush.verticalGradient(listOf(Color.White, Color(0xFFFFF8E1)))
         }
 
         Card(
@@ -215,11 +221,11 @@ fun DayCellPremium(date: LocalDate?, isToday: Boolean, hasEvent: Boolean, onClic
                 .size(48.dp)
                 .clickable { onClick() },
             shape = MaterialTheme.shapes.medium,
-            elevation = CardDefaults.cardElevation(4.dp)
+            elevation = CardDefaults.cardElevation(6.dp)
         ) {
             Box(
                 modifier = Modifier
-                    .background(bgColor)
+                    .background(bgBrush)
                     .fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
@@ -227,12 +233,12 @@ fun DayCellPremium(date: LocalDate?, isToday: Boolean, hasEvent: Boolean, onClic
                     Text(
                         text = date.dayOfMonth.toString(),
                         color = if (isToday) Color.White else Color.Black,
-                        fontWeight = if (isToday) FontWeight.Bold else FontWeight.Normal
+                        fontWeight = if (isToday) FontWeight.Bold else FontWeight.Medium
                     )
                     if (hasEvent) {
                         Box(
                             modifier = Modifier
-                                .size(5.dp)
+                                .size(6.dp)
                                 .background(Color(0xFFD32F2F), shape = MaterialTheme.shapes.small)
                         )
                     }
